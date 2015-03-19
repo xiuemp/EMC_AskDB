@@ -1,0 +1,18 @@
+<font size='5' color='purple'><h1>Draw Horizon</h1></font>
+
+<form action="{% url 'eye:draw' %}" method="post">
+	{% csrf_token %}
+	<select name="domain_selected">
+	    {% for domain_tmp in imported_domain_list %}
+	        <option value="{{ domain_tmp.domain_name }}">{{ domain_tmp.domain_name }}</option>
+	    {% endfor %}
+	</select>
+
+	<input type='submit' value='Show Range' style='color:black;font-size:15pt;' />
+</form>
+
+<br>
+<form action="{% url 'eye:back_to_menu' %}" method="post">
+	{% csrf_token %}
+	<input type='submit' value='Back to Menu' style='color:purple;font-size:15pt;' />
+</form>

@@ -1,0 +1,45 @@
+{% load staticfiles %}
+
+<!--<link rel="stylesheet" type="text/css" href="{% static 'ask/style.css' %}" />
+-->
+
+<font size='5px' color='purple'><h1>Atmos Customers DB Dashboard
+</h1></font>
+
+<form action="{% url 'ask:console'  %}" method="post">
+	{% csrf_token %}
+	<font size='3px' color='black'>Please select domain: </font>
+	<select name="filter"> 
+	{% if distinct_flag %}
+		<option value="distinct">distinct</option> 
+		<option value="all">all</option> 
+	{% else %}
+		<option value="distinct">distinct</option>
+		<option value="all" selected="true">all</option>		 
+	{% endif %}
+	</select>
+
+	<select name="domain"> 
+	<option value="systems">systems</option> 	 
+	<option value="nodes">nodes</option> 
+	<option value="disks">disks</option>
+	<option value="clusters">clusters</option>
+	<option value="policycfgs">policycfgs</option>
+	<option value="networkcfgs">networkcfgs</option>
+	<option value="rmgs">rmgs</option>
+	</select> 
+	<input type="submit" value="Show" style="color:black;font-size:15pt;"/>
+</form>
+
+{% if table_flag %}
+	<font size='4px' color='black'><h2>{{ default_domain }} (total: {{ tip_count }})</h4></font>
+	<table border="1">
+		{% for row in table %}
+			<tr>
+				{% for tip in row %}
+					<td><font size='2px' color='black'>{{ tip }}</font>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</table>
+{% endif %}

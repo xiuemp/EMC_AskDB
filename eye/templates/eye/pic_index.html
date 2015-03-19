@@ -1,0 +1,31 @@
+<font size='5' color='purple'><h1>Picture Horizon</h1></font>
+<font size='4' color='green'>Just select the charts and click</font>
+<form action="{% url 'eye:pic_show' %}" method='post'>
+	{% csrf_token %}
+	{% for pic in pic_list %}
+		{% if pic_flag %}
+			{%if pic.selected %}
+				<label><input name="pics" type="checkbox" value="{{ pic.name }}" checked='checked'/>{{ pic.name }}</label><br>
+			{% else %}
+				<label><input name="pics" type="checkbox" value="{{ pic.name }}"/>{{ pic.name }}</label><br>
+			{% endif %}
+		{% else %}
+			<label><input name="pics" type="checkbox" value="{{ pic }}"/>{{ pic }}</label><br>
+		{% endif %}
+	{% endfor %}
+	<input type='submit' value='Show Me' style='color:black;font-size:15pt;'/>
+</form>
+
+
+{% if pic_flag %}
+	{% load staticfiles %}
+	{% for pic in pics %}
+		<img src="{% static pic %}" style="width:600px;">
+	{% endfor %}
+{% endif %}
+
+<br>
+<form action="{% url 'eye:back_to_menu' %}" method="post">
+    {% csrf_token %}
+    <input type='submit' value='Back to Menu' style='color:purple;font-size:15pt;' />
+</form>

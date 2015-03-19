@@ -1,0 +1,33 @@
+<font size='5' color='purple'><h1>Eye of Log</h1></font>
+
+{% load staticfiles %}
+<img src="{% static 'eye/conf/logo.png' %}" align='right' style="width:500px;">
+
+<h2><a href="{% url 'eye:log_index' %}"><font size='5' color='green'>Import Log</font></a></h2>
+<p>(Load log to system)</p>
+<br>
+
+<h2><a href="{% url 'eye:domain_index' %}"><font size='5' color='green'>Select Domain</font></a></h2>
+<p>(Assign domain for specific log)</p>
+<br>
+
+<h2><a href="{% url 'eye:draw_index' %}"><font size='5' color='green'>Draw Chart</font></a></h2>
+<p>(Exciting drawing)</p>
+<br>
+
+<h2><a href="{% url 'eye:pic_index' %}"><font size='5' color='green'>Picture Store</font></a></h2>
+<p>(Have a look on what I have drawn)</p>
+
+<br>
+<br>
+<form action="{% url 'eye:clear_pic' %}" method='post'>
+	{% csrf_token %}
+
+	<input type="submit" value="Clear Pics" style="color:black;font-size:10pt;"/>
+</form>
+
+<form action="{% url 'eye:clear_pd' %}" method='post'>
+	{% csrf_token %}
+
+	<input type="submit" value="Clear Log Cache" style="color:black;font-size:10pt;"/>
+</form>

@@ -1,0 +1,35 @@
+<font size='5' color='purple'><h1>Domain Horizon</h1></font>
+
+<form action="{% url 'eye:domain_add' %}" method="post">
+    {% csrf_token %}
+    <select name="log_name">
+        {% for name in imported_log_name_list %}
+            <option value="{{ name }}">{{ name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="category_name">
+        <option value="common">common</option>
+        <option value="specific">specific</option>
+    </select>
+
+    <select name="type_name">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="DELETE">DELETE</option>
+        <option value="HEAD">HEAD</option>
+    </select>
+
+    <input type="submit" value="Create" style="color:black;font-size:15pt;"/>
+</form>
+
+{% for domain in domain_list %}
+    <li>{{ domain.domain_name }}</li>
+{% endfor %}
+
+<br>
+<form action="{% url 'eye:back_to_menu' %}" method="post">
+    {% csrf_token %}
+    <input type='submit' value='Back to Menu' style='color:purple;font-size:15pt;' />
+</form>
+

@@ -1,0 +1,49 @@
+<font size='5' color='purple'><h1>Log Horizon</h1></font>
+
+{% if duplicated_flag %}
+    <script language="JavaScript">   
+        window.alert("Log name existed, check if duplicated input.")   
+    </script> 
+{% endif %}
+{% if path_null_flag %}
+    <script language="JavaScript">   
+        window.alert("Path not existed, check the input.")   
+    </script> 
+{% endif %}
+
+
+<form action="{% url 'eye:log_add' %}" method="post">
+    {% csrf_token %}
+    <p>Path of log: <input type="text" name="log_path" style="width:500px;"/><font color='red'>(*must input the path in the server)</font></p>
+    <p>Log name: <input type="text" name="log_name" /><font color='red'>(*must input)</font></p>
+    <p>Filter key: <input type="text" name="filter_key" />(will filter records by input key)</p>
+    <p>Category key: <input type="text" name="category_key" />(divide records by input key)</p>
+    <p>
+        index_time: <input type="text" name="index_time" style="width:30px" value='0'/>
+        index_type: <input type="text" name="index_type" style="width:30px" value='8'/>
+        index_sent: <input type="text" name="index_sent" style="width:30px" value='16'/>
+        index_received: <input type="text" name="index_received" style="width:30px" value='17'/>
+        index_latency: <input type="text" name="index_latency" style="width:30px" value='18'/>
+	<font color='red'>(*all must input)</font>
+    </p>
+
+    <input type="submit" value="Add" style="color:black;font-size:15pt;"/>
+
+</form>
+
+{% for log in log_list %}
+    <li>{{ log }}</li>
+{% endfor %}
+
+<br>
+<form action="{% url 'eye:back_to_menu' %}" method="post">
+    {% csrf_token %}
+    <input type='submit' value='Back to Menu' style='color:purple;font-size:15pt;' />
+</form>
+
+<h2>Log Example:</h2>
+{% load staticfiles %}
+<img src="{% static 'eye/conf/log_example.png' %}" align='right' style="width:1000px;">
+
+
+

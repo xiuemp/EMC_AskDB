@@ -1,0 +1,211 @@
+<head>
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static 'sec_vul/style.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'sec_vul/jquery.qtip.css' %}" />
+
+	<script type="text/javascript" src="{% static 'sec_vul/jquery-1.11.2.js' %}"></script>
+    <script type="text/javascript" src="{% static 'sec_vul/jquery.qtip.js' %}"></script>
+	<script type="text/javascript">
+	
+ var pageSize = 15;//items display in each page
+ var curPage=0;
+ var lastPage;
+ var direct=0;
+ var len;
+ var page;
+ $(document).ready(function(){    
+     len =$("#table tr").length;
+        page=len % pageSize==0 ? len/pageSize : Math.floor(len/pageSize)+1;//count the pages
+      //  alert("page==="+page);
+        curPage=1;
+        displayPage();//display the first page
+        $("#btn1").click(function(){
+         curPage=1;
+         displayPage();
+     });
+        $("#btn2").click(function(){
+         direct=-1;
+         displayPage();
+     });
+        $("#btn3").click(function(){
+         direct=1;
+         displayPage();
+     });
+        $("#btn4").click(function(){
+         curPage=page;
+         displayPage();
+     });
+        $('input[title]').qtip({
+         show: 'focus',
+         hide: 'blur'
+     });
+ });
+ 
+ function displayPage(){
+ 	if((curPage <=1 && direct==-1) || (curPage >= page && direct==1)){
+   		direct=0;
+   		alert("This is the first or the last page yet.");
+   		return;
+  	}
+  	lastPage = curPage;
+  	curPage = (curPage + direct + len) % len;
+    var begin=(curPage-1)*pageSize;//display begin
+    var end = begin + pageSize;
+  	if(end > len ) end=len;
+    $("#table tr").hide();
+    $("#table tr").each(function(i){
+        if(i>=begin && i<end)//select what will be show
+        	$(this).show();
+     });
+    if (page > 0)
+        {
+        	$("#cur_page").text(curPage+"/"+page)
+        }
+        else
+        {
+        	$("#cur_page").text("0/0")
+        }
+    direct=0;
+ }
+
+	</script>
+</head>
+
+<font size='5px' color='purple'><h1 id='top'>Atmos Security Vulnerability Dashboard
+</h1></font>
+
+<table id="tooltable">
+<tr id="toolrow">
+    <td id="toolcolumn">
+<form action="{% url 'sec_vul:search'  %}" method="post">
+	{% csrf_token %}
+	<input type='text' title="Tips: input CVE num, hotfix, release. Examples: '2014-3668', 'HF410', '2.2.2', '3668 3669'" name='searchme' value="{{ default_search }}" style="width:200pt"/>
+    
+	<input type='submit' value='Search' style="color:black;"/>
+</form>
+    </td>
+    <td id="toolcolumn">
+<form action="{% url 'sec_vul:search'  %}" method="post">
+    {% csrf_token %}
+    <font size='2px'>Hotfix &nbsp </font>
+    <select name='searchme' onChange="javascript:this.form.submit();">
+        <option value=''>...</option>
+        {% for tip in HF_list %}
+            <option value='{{ tip }}'>{{ tip }}</option>
+        {% endfor %}
+    </select>
+</form>
+    </td>
+    <td id="toolcolumn">
+
+<form action="{% url 'sec_vul:search'  %}" method="post">
+    {% csrf_token %}
+    <font size='2px'>Release</font>
+    <select name='searchme' onChange="javascript:this.form.submit();">
+        <option value=''>...</option>
+        {% for tip in R_list %}
+            <option value='{{ tip }}'>{{ tip }}</option>
+        {% endfor %}
+    </select>
+</form>
+    </td>
+    <td id="toolcolumn" style="width:51%" align="right">
+
+  <font size='4px'>
+    <a href='#title_plan_release'>Plan in release</a>&nbsp &nbsp
+    <a href='#title_plan_hotfix'>Plan in HF</a>&nbsp &nbsp
+    <a href='#title_no_plan'>No plan to fix</a>&nbsp &nbsp
+    <a href="{% url 'sec_vul:console'  %}">Dashboard</a> &nbsp &nbsp
+    <a href="{% url 'sec_vul:overview'  %}">Overview</a>
+  </font>
+    </td>
+</tr>
+</table>
+<div id='div_top' style="position:fixed;" align='right'><a id='to_top' href='#top'><font size='4px'>Top</font></a></div>
+
+{% if table_flag %}
+	<font size='4px'><h3>Released (total: {{ tip_count }})</h3></font>
+	<table id='table'>
+		<tr>
+			{% for head in heads %}
+				<th style="width:300px;"><font size='2px'>{{ head }}</font></th>
+			{% endfor %}
+		</tr>
+		{% for row in table %}
+			<tr>
+				{% for tip in row %}
+					<td style="width:300px;"><font size='2px'>{{ tip }}</font></td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</table>
+{% endif %}
+
+{% if table_flag %}
+<br>
+<input type=button id="btn1" value="First" >
+<input type=button id="btn2" value="Prev">
+<input type=button id="btn3" value="Next" >
+<input type=button id="btn4" value="Last" >
+&nbsp;
+<span> Page </span><span id="cur_page"></span>
+<br>
+{% endif %}
+
+
+{% if table_RP_flag %}
+    <font size='4px'><h3 id='title_plan_release'>Plan in release(total: {{ tip_count_RP }})</h3></font>
+    <table id='table_RP'>
+        <tr>
+            {% for head in heads_RP %}
+                <th id='th_RP' style="width:300px;"><font size='2px'>{{ head }}</font></th>
+            {% endfor %}
+        </tr>
+        {% for row in table_RP %}
+            <tr>
+                {% for tip in row %}
+                    <td style="width:300px;"><font size='2px'>{{ tip }}</font></td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+  <br>
+{% endif %}
+
+{% if table_HP_flag %}
+    <font size='4px'><h3 id='title_plan_hotfix'>Plan in HF (total: {{ tip_count_HP }})</h3></font>
+    <table id='table_HP'>
+        <tr>
+            {% for head in heads_HP %}
+                <th id='th_HP' style="width:300px;"><font size='2px'>{{ head }}</font></th>
+            {% endfor %}
+        </tr>
+        {% for row in table_HP %}
+            <tr>
+                {% for tip in row %}
+                    <td style="width:300px;"><font size='2px'>{{ tip }}</font></td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+  <br>
+{% endif %}
+
+{% if table_NP_flag %}
+    <font size='4px'><h3 id='title_no_plan'>No plan to fix (total: {{ tip_count_NP }})</h3></font>
+    <table id='table_NP'>
+        <tr id='tr_NP'>
+            {% for head in heads_NP %}
+                <th id='th_NP' style="width:300px;"><font size='2px'>{{ head }}</font></th>
+            {% endfor %}
+        </tr>
+        {% for row in table_NP %}
+            <tr id='tr_NP'>
+                {% for tip in row %}
+                    <td style="width:300px;"><font size='2px'>{{ tip }}</font></td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+  <br>
+{% endif %}

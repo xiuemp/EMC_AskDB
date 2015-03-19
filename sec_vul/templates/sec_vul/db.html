@@ -1,0 +1,56 @@
+<head>
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static 'sec_vul/style.css' %}" />
+</head>
+
+<form action="{% url 'sec_vul:db_sql' %}" method='post'>
+	{% csrf_token %}
+	<input type='text' name='sql' style="width:300pt"/>
+	<input type='submit' value='SQL submit'/>
+</form>
+
+{% if table_sql_flag %}
+<font size='3px'><h1>SQL Result</h1></font>
+<table>
+	{% for row in table_sql %}
+		<tr>
+			{% for tip in row %}
+					<td><font size='2px'>{{ tip }}</font></td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+</table>
+{% endif %}
+
+<font size='3px'><h1>Hotfix Table (total: {{ hotfix_count }})</h1></font>
+<table id='table'>
+	<tr>
+		{% for head in hotfix_heads %}
+				<th><font size='2px'>{{ head }}</font> </th>
+		{% endfor %}
+	</tr>
+	{% for row in hotfix_table %}
+		<tr>
+			{% for tip in row %}
+					<td><font size='2px'>{{ tip }}</font></td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+</table>
+
+<font size='3px'><h1>Report Table (total: {{ report_count }})</h1></font>
+<table id='table'>
+	<tr>
+		{% for head in report_heads %}
+				<th><font size='2px'>{{ head }}</font> </th>
+		{% endfor %}
+	</tr>
+	{% for row in report_table %}
+		<tr>
+			{% for tip in row %}
+					<td><font size='2px'>{{ tip }}</font></td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+</table>
+

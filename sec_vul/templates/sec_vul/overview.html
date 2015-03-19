@@ -1,0 +1,55 @@
+<head>
+	<table id="tooltable">
+		<tr id="toolrow">
+			<td id="toolcolumn" style="width:600px">
+	<font size='5px' style="font-weight:bold;">Issues Status</font>
+			</td>
+			<td id="toolcolumn" style="width:600px" align="right">
+	<font size='4px'><a href="{% url 'sec_vul:console'  %}">Dashboard</a></font>
+			</td>
+		</tr>
+	</table>
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static 'sec_vul/style.css' %}" />
+</head>
+
+<img src="{% static pic.0 %}" style="width:370px;">
+<img src="{% static pic.1 %}" style="width:370px;">
+<img src="{% static pic.2 %}" style="width:370px;">
+
+<font size="2px"><h2>Hotfix</h2></font>
+<table>
+	<tr>
+		{% for head in HF_heads %}
+			<th style="width:25%;"><font size='3px'>{{ head }}</font> </th>
+		{% endfor %}
+	</tr>
+	{% for row in HF_Table %}
+		<tr>
+			{% for tip in row %}
+				<td><font size='3px'>{{ tip }}</font></td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+</table>
+
+
+<font size='2px'><h2>Release</h2></font>
+<table>
+	<tr>
+		{% for head in R_heads %}
+			<th style="width:300px;"><font size='3px'>{{ head }}</font> </th>
+		{% endfor %}
+	</tr>
+	{% for row in R_Table %}
+		<tr>
+			{% for tip in row %}
+				<td><font size='3px'>{{ tip }}</font></td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+</table>
+<p><font color='red' size='3px'>*All issues shown above are new added</font></p>
+
+<br>
+<font size='4px'><a href="{% url 'sec_vul:console'  %}">Dashboard</a></font>
