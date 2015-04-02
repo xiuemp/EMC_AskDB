@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 import os
 from backend import ask_db_sec_vul, sec_plot
 import re
+import random
 
 DB_PATH = '/var/security_vulnerability/vulnerability_db'
 PATH_STATIC = os.getcwd()+'/sec_vul/static/sec_vul/'
@@ -85,6 +86,9 @@ def each_search(searchme):
 
     if domain_flag == 'CVE':
         result_list_original = ask_db_sec_vul.read_db_by_like(DB_PATH, searchme)
+        # if search by cves return null, search "name"
+        if len(result_list_original) == 0:
+            result_list_original = ask_db_sec_vul.read_db_after_cves_null(DB_PATH, searchme)
     elif domain_flag == 'HF':
         result_list_original = ask_db_sec_vul.read_db_by_like_HF(DB_PATH, searchme)
     elif domain_flag == 'Release':
@@ -95,6 +99,8 @@ def each_search(searchme):
         if raw[0] == '':
             continue
         cves = raw[0].split('\n')
+        # if '4943' in searchme:
+        #     print cves
         level = raw[1]
         hotfix = raw[2]
         release = raw[3]
@@ -278,83 +284,87 @@ def overview(request):
 
     result_list = ask_db_sec_vul.read_db(DB_PATH, 'report', "cves,hotfix,release,level")
     for row in result_list:
-        if row[0] == '':
-            continue
+        cves_str = row[0]
+        if cves_str == '':
+            cves_str = str(random.random())
+        cves = cves_str.split('\n')
+        # tackle format revise
+        for i in range(len(cves)):
+            cves[i] = cves[i].strip()
+
+        total_cves = total_cves + cves
+        hotfix = row[1]
+        if hotfix == '':
+            hotfix = HF_NULL
+        HF_set.add(hotfix)
+        release = row[2].split()
+        if release == []:
+            release = [Release_NULL]
+        R_set.update(release)
+        level = row[3]
+
+        if hotfix in pie_dict_hotfix:
+            pie_dict_hotfix[hotfix] = pie_dict_hotfix[hotfix] + cves
         else:
-            cves = row[0].split('\n')
-            total_cves = total_cves + cves
-            hotfix = row[1]
-            if hotfix == '':
-                hotfix = HF_NULL
-            HF_set.add(hotfix)
-            release = row[2].split()
-            if release == []:
-                release = [Release_NULL]
-            R_set.update(release)
-            level = row[3]
+            pie_dict_hotfix[hotfix] = cves
 
-            if hotfix in pie_dict_hotfix:
-                pie_dict_hotfix[hotfix] = pie_dict_hotfix[hotfix] + cves
+        for each_release in release:
+            if each_release in pie_dict_release:
+                pie_dict_release[each_release] = pie_dict_release[each_release] + cves
             else:
-                pie_dict_hotfix[hotfix] = cves
+                pie_dict_release[each_release] = cves
 
+        if level == 'H':
+            if 'High' in pie_dict_level:
+                pie_dict_level['High'] = pie_dict_level['High'] + cves
+            else:
+                pie_dict_level['High'] = cves
+
+            if hotfix in HF_H:
+                HF_H[hotfix] = HF_H[hotfix] + cves
+            else:
+                HF_H[hotfix] = cves
             for each_release in release:
-                if each_release in pie_dict_release:
-                    pie_dict_release[each_release] = pie_dict_release[each_release] + cves
+                if each_release in R_H:
+                    R_H[each_release] = R_H[each_release] + cves
                 else:
-                    pie_dict_release[each_release] = cves
-    
-            if level == 'H':
-                if 'High' in pie_dict_level:
-                    pie_dict_level['High'] = pie_dict_level['High'] + cves
-                else:
-                    pie_dict_level['High'] = cves
+                    R_H[each_release] = cves
 
-                if hotfix in HF_H:
-                    HF_H[hotfix] = HF_H[hotfix] + cves
-                else:
-                    HF_H[hotfix] = cves
-                for each_release in release:
-                    if each_release in R_H:
-                        R_H[each_release] = R_H[each_release] + cves
-                    else:
-                        R_H[each_release] = cves
-
-            elif level == 'M':
-                if 'Medium' in pie_dict_level:
-                    pie_dict_level['Medium'] = pie_dict_level['Medium'] + cves
-                else:
-                    pie_dict_level['Medium'] = cves
-                if hotfix in HF_M:
-                    HF_M[hotfix] = HF_M[hotfix] + cves
-                else:
-                    HF_M[hotfix] = cves
-                for each_release in release:
-                    if each_release in R_M:
-                        R_M[each_release] = R_M[each_release] + cves
-                    else:
-                        R_M[each_release] = cves
-
-            elif level == 'L':
-                if 'Low' in pie_dict_level:
-                    pie_dict_level['Low'] = pie_dict_level['Low'] + cves
-                else:
-                    pie_dict_level['Low'] = cves
-                if hotfix in HF_L:
-                    HF_L[hotfix] = HF_L[hotfix] + cves
-                else:
-                    HF_L[hotfix] = cves
-                for each_release in release:
-                    if each_release in R_L:
-                        R_L[each_release] = R_L[each_release] + cves
-                    else:
-                        R_L[each_release] = cves
-
+        elif level == 'M':
+            if 'Medium' in pie_dict_level:
+                pie_dict_level['Medium'] = pie_dict_level['Medium'] + cves
             else:
-                if Level_NULL in pie_dict_level:
-                    pie_dict_level[Level_NULL] = pie_dict_level[Level_NULL] + cves
+                pie_dict_level['Medium'] = cves
+            if hotfix in HF_M:
+                HF_M[hotfix] = HF_M[hotfix] + cves
+            else:
+                HF_M[hotfix] = cves
+            for each_release in release:
+                if each_release in R_M:
+                    R_M[each_release] = R_M[each_release] + cves
                 else:
-                    pie_dict_level[Level_NULL] = cves
+                    R_M[each_release] = cves
+
+        elif level == 'L':
+            if 'Low' in pie_dict_level:
+                pie_dict_level['Low'] = pie_dict_level['Low'] + cves
+            else:
+                pie_dict_level['Low'] = cves
+            if hotfix in HF_L:
+                HF_L[hotfix] = HF_L[hotfix] + cves
+            else:
+                HF_L[hotfix] = cves
+            for each_release in release:
+                if each_release in R_L:
+                    R_L[each_release] = R_L[each_release] + cves
+                else:
+                    R_L[each_release] = cves
+
+        else:
+            if Level_NULL in pie_dict_level:
+                pie_dict_level[Level_NULL] = pie_dict_level[Level_NULL] + cves
+            else:
+                pie_dict_level[Level_NULL] = cves
 
     #Count distinct num
     total_count = len(set(total_cves))
@@ -438,7 +448,7 @@ def overview(request):
         if not key == 'None':
             R_Table.append([key, R_H[key], R_M[key], R_L[key]])
 
-
+    # print total_cves
     context = {'pic':pic, 'HF_heads':HF_heads, 'R_heads':R_heads, 'HF_Table':HF_Table, 'R_Table':R_Table}
     return render(request, 'sec_vul/overview.html', context)
 
